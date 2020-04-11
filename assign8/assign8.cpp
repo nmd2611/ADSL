@@ -20,7 +20,8 @@ public:
 	Node()
 	{
 		key = "";
-		left = right = NULL;
+		left = NULL;
+		right = NULL;
 		ht = 0;
 	}
 };
@@ -40,18 +41,33 @@ public:
 		root = insert(root, x);
 	}
 
-	void callInorder()
+	void callAscending()
 	{
-		inOrder(root);
+		Ascending(root);
 	}
 
-	void inOrder(Node *t)
+	void Ascending(Node *t)
 	{
-		if (t)
+		if (t != NULL)
 		{
-			inOrder(t->left);
-			cout << t->key << "\t" << BF(t) << endl;
-			inOrder(t->right);
+			Ascending(t->left);
+			cout << t->key << "\t";
+			Ascending(t->right);
+		}
+	}
+
+	void callDescending()
+	{
+		Descending(root);
+	}
+
+	void Descending(Node *t)
+	{
+		if (t != NULL)
+		{
+			Descending(t->right);
+			cout << t->key << "\t";
+			Descending(t->left);
 		}
 	}
 
@@ -61,10 +77,11 @@ public:
 	{
 		if (t == NULL) // if the tree is empty
 		{
-			t = new Node;
-			t->key = x;
-			t->left = NULL;
-			t->right = NULL;
+			Node *temp = new Node;
+			temp->key = x;
+			temp->left = NULL;
+			temp->right = NULL;
+			t = temp;
 		}
 		else
 		{
@@ -83,21 +100,19 @@ public:
 						t = RL(t);
 					}
 				}
-
-				else if (x < t->key)
-				{
-					t->left = insert(t->left, x);
-					if (BF(t) == 2)
-						if (x < t->left->key)
-							t = LL(t);
-						else
-							t = LR(t);
-				}
 			}
-
-			t->ht = height(t);
-			return t;
+			else if (x < t->key)
+			{
+				t->left = insert(t->left, x);
+				if (BF(t) == 2)
+					if (x > t->left->key)
+						t = LR(t);
+					else
+						t = LL(t);
+			}
 		}
+		t->ht = height(t);
+		return t;
 	}
 
 	int BF(Node *t)
@@ -106,16 +121,8 @@ public:
 		if (t == NULL)
 			return 0;
 
-		if (t->left == NULL)
-			lh = 0;
-		else
-			lh = 1 + t->left->ht;
-
-		if (t->right == NULL)
-			rh = 0;
-		else
-			rh = 1 + t->right->ht;
-
+		lh = height(t->left);
+		rh = height(t->right);
 		return (lh - rh);
 	}
 
@@ -125,50 +132,37 @@ public:
 		if (t == NULL)
 			return 0;
 
-		if (t->left == NULL)
-			lh = 0;
-		else
-			lh = 1 + t->left->ht;
-
-		if (t->right == NULL)
-			rh = 0;
-		else
-			rh = 1 + t->right->ht;
+		lh = height(t->left);
+		rh = height(t->right);
 
 		if (lh > rh)
-			return lh;
+			return (lh + 1);
 		else
-			return rh;
+			return (rh + 1);
 	}
 
 	Node *rightrotate(Node *p)
 	{
 		Node *q;
-		if (p)
-		{
-			q = p->left;
-			p->left = q->right;
-			q->right = p;
-			p->ht = height(p);
-			q->ht = height(q);
-			return q;
-		}
-		return NULL;
+
+		q = p->left;
+		p->left = q->right;
+		q->right = p;
+		p->ht = height(p);
+		q->ht = height(q);
+		return q;
 	}
 
 	Node *leftrotate(Node *p)
 	{
 		Node *q;
-		if (p)
-		{
-			q = p->right;
-			p->right = q->left;
-			q->left = p;
-			p->ht = height(p);
-			q->ht = height(q);
-			return q;
-		}
-		return NULL;
+
+		q = p->right;
+		p->right = q->left;
+		q->left = p;
+		p->ht = height(p);
+		q->ht = height(q);
+		return q;
 	}
 
 	Node *RR(Node *t)
@@ -196,6 +190,40 @@ public:
 		t = leftrotate(t);
 		return t;
 	}
+
+	void find(string t)
+	{
+		Node *r = root;
+		int flag = 0;
+		int comp = 1;
+
+		do
+		{
+			if (r == NULL)
+				cout << "Keyword Not Found" << endl;
+			else
+			{
+
+				if (r->key == t)
+				{
+					cout << "Found!! \n Comparisons = " << comp << endl;
+					flag = 1;
+				}
+				else if (root->key < t)
+				{
+					// go to right
+					r = r->right;
+				}
+				else
+				{
+					// go to left
+					r = r->left;
+				}
+				comp++;
+			}
+
+		} while (flag == 0);
+	}
 };
 
 int main()
@@ -204,9 +232,17 @@ int main()
 
 	A.callInsert("JAN");
 	A.callInsert("FEB");
+
 	A.callInsert("MAR");
 	A.callInsert("APR");
-	A.callInorder();
 
+	A.callAscending();
+	cout << endl;
+	A.callDescending();
+
+	string t;
+	cout << "Enter the keyword to be searched" << endl;
+	cin >> t;
+	A.find(t);
 	return 0;
 }
