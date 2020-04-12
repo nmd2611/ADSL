@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 /**
  *
- * @author Pujashree
+ * 
  */
 abstract class MyStack {
 
